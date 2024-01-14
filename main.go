@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/AntonyIS/notelify-logging-svc/cmd"
+)
 
-func main(){
-	fmt.Println("Notelify logging service")
+func main() {
+	cmd.RunService()
 }
