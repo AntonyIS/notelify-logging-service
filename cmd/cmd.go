@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"github.com/AntonyIS/notelify-logging-svc/config"
-	"github.com/AntonyIS/notelify-logging-svc/internal/adapters/http"
-	"github.com/AntonyIS/notelify-logging-svc/internal/adapters/repository/postgres"
-	"github.com/AntonyIS/notelify-logging-svc/internal/core/services"
+	"github.com/AntonyIS/notelify-logging-service/config"
+	"github.com/AntonyIS/notelify-logging-service/internal/adapters/http"
+	"github.com/AntonyIS/notelify-logging-service/internal/adapters/repository/postgres"
+	"github.com/AntonyIS/notelify-logging-service/internal/core/services"
 )
 
 func RunService() {

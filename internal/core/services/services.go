@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/AntonyIS/notelify-logging-svc/internal/core/domain"
-	"github.com/AntonyIS/notelify-logging-svc/internal/core/ports"
+	"github.com/AntonyIS/notelify-logging-service/internal/core/domain"
+	"github.com/AntonyIS/notelify-logging-service/internal/core/ports"
 	"github.com/google/uuid"
 )
 

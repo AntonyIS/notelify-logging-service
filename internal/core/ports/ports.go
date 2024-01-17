@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/AntonyIS/notelify-logging-svc/internal/core/domain"
+import "github.com/AntonyIS/notelify-logging-service/internal/core/domain"
 
 type LoggerService interface {
 	CreateLog(message, service string)

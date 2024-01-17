@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/AntonyIS/notelify-logging-svc/config"
-	"github.com/AntonyIS/notelify-logging-svc/internal/core/ports"
+	"github.com/AntonyIS/notelify-logging-service/config"
+	"github.com/AntonyIS/notelify-logging-service/internal/core/ports"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

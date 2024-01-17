@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	appConfig "github.com/AntonyIS/notelify-logging-svc/config"
-	"github.com/AntonyIS/notelify-logging-svc/internal/core/domain"
+	appConfig "github.com/AntonyIS/notelify-logging-service/config"
+	"github.com/AntonyIS/notelify-logging-service/internal/core/domain"
 )
 
 type postgresDBClient struct {

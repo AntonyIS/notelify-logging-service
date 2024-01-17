@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/AntonyIS/notelify-logging-svc/cmd"
+	"github.com/AntonyIS/notelify-logging-service/cmd"
 )
 
 func main() {
