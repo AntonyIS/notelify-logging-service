@@ -1,7 +1,8 @@
 package domain
 
 type LogMessage struct {
-	Log_id  string `json:"log_id"`
-	Message string `json:"message"`
-	Service string `json:"service"`
+	LogID   string `json:"log_id"`
+	LogLevel string `json:"log_level"`
+	Message  string `json:"message"`
+	Service  string `json:"service"`
 }

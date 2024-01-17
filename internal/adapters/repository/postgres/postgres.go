@@ -4,10 +4,10 @@ import (
 	"database/sql"
 
 	"fmt"
-	"log"
 
 	appConfig "github.com/AntonyIS/notelify-logging-service/config"
 	"github.com/AntonyIS/notelify-logging-service/internal/core/domain"
+	_ "github.com/lib/pq"
 )
 
 type postgresDBClient struct {
@@ -28,22 +28,21 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 	db, err := sql.Open("postgres", dsn)
 
 	if err != nil {
-		log.Println(err.Error())
 		return nil, err
 	}
 
 	err = db.Ping()
 
 	if err != nil {
-		log.Println(err.Error())
 		return nil, err
 	}
 
 	queryString := fmt.Sprintf(`
 		CREATE TABLE IF NOT EXISTS %s (
 			log_id VARCHAR(255) PRIMARY KEY UNIQUE,
-			service VARCHAR(255) NOT NULL,
-			message VARCHAR(255) NOT NULL
+			log_level VARCHAR(10) NOT NULL,
+			message VARCHAR(255) NOT NULL,
+			service VARCHAR(10) NOT NULL
 	)
 	`, tablename)
 
@@ -52,62 +51,125 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 		return nil, err
 	}
 
-	if err != nil {
-		log.Println(err.Error())
-		return nil, err
-
-	}
-
 	return &postgresDBClient{db: db, tablename: tablename}, nil
 }
 
-func (psql *postgresDBClient) CreateLog(message domain.LogMessage) {
-	query := fmt.Sprintf(`
-		INSERT INTO %s (
-			log_id,
-			message,
-			service,
-		)
-		VALUES ($1,$2)`,
-		psql.tablename)
+func (psql *postgresDBClient) CreateLog(logEntry domain.LogMessage) error {
+
+	query := fmt.Sprintf(`INSERT INTO %s (log_id,log_level,message,service) VALUES ($1,$2,$3,$4)`, psql.tablename)
+
 	_, err := psql.db.Exec(
 		query,
-		message.Log_id,
-		message.Message,
+		logEntry.LogID,
+		logEntry.LogLevel,
+		logEntry.Message,
+		logEntry.Service,
 	)
 
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-			log.Println(err.Error())
-		}
+		return err
 	}
+	return nil
 }
 
-func (psql *postgresDBClient) GetLogs() *[]domain.LogMessage {
-	fmt.Println(psql.tablename, "TANE")
-	return &[]domain.LogMessage{}
-	// query := fmt.Sprintf(`SELECT log_id, message, service FROM %s `, psql.tablename)
+func (psql *postgresDBClient) GetLogs() (*[]domain.LogMessage, error) {
+	query := fmt.Sprintf(`SELECT log_id, log_level,message, service FROM %s `, psql.tablename)
 
-	// logs := []domain.LogMessage{}
-	// rows, err := psql.db.Query(query)
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// }
-	// defer rows.Close()
+	rows, err := psql.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	logs := []domain.LogMessage{}
+	for rows.Next() {
+		var logEntry domain.LogMessage
+		err := rows.Scan(
+			&logEntry.LogID,
+			&logEntry.LogLevel,
+			&logEntry.Message,
+			&logEntry.Service,
+		)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, logEntry)
+	}
 
-	// for rows.Next() {
-	// 	var logMessage domain.LogMessage
-	// 	err := rows.Scan(
-	// 		logMessage.Log_id,
-	// 		logMessage.Message,
-	// 		logMessage.Service,
-	// 	)
-	// 	if err != nil {
-	// 		log.Println(err.Error())
+	return &logs, nil
+}
 
-	// 	}
-	// 	logs = append(logs, logMessage)
-	// }
+func (psql *postgresDBClient) GetServiceLogs(service string) (*[]domain.LogMessage, error) {
+	query := fmt.Sprintf(`
+		SELECT 
+		log_id, 
+		log_level, 
+		service, 
+		message
+		FROM %s WHERE service = $1`, psql.tablename)
 
-	// return &logs
+	rows, err := psql.db.Query(query, service)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	logs := []domain.LogMessage{}
+
+	for rows.Next() {
+		var logEntry domain.LogMessage
+		err := rows.Scan(
+			&logEntry.LogID,
+			&logEntry.LogLevel,
+			&logEntry.Message,
+			&logEntry.Service,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, logEntry)
+	}
+
+	return &logs, nil
+
+}
+
+func (psql *postgresDBClient) GetServiceLogsByLogLevel(service, log_level string) (*[]domain.LogMessage, error) {
+	query := fmt.Sprintf(`
+		SELECT 
+		log_id, 
+		log_level, 
+		service, 
+		message
+		FROM %s WHERE service = $1 AND log_level =$2`, psql.tablename)
+
+	rows, err := psql.db.Query(query, service, log_level)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	logs := []domain.LogMessage{}
+
+	for rows.Next() {
+		var logEntry domain.LogMessage
+		err := rows.Scan(
+			&logEntry.LogID,
+			&logEntry.LogLevel,
+			&logEntry.Message,
+			&logEntry.Service,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, logEntry)
+	}
+
+	return &logs, nil
+
 }

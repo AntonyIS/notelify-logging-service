@@ -17,15 +17,50 @@ func NewLoggingManagementService(repo ports.LoggerRepository) *loggingManagement
 	return &svc
 }
 
-func (svc *loggingManagementService) CreateLog(messageString string, service string) {
-	message := domain.LogMessage{
-		Message: messageString,
-		Log_id:  uuid.New().String(),
-		Service: service,
+func (svc *loggingManagementService) CreateLog(logEntry domain.LogMessage) {
+	logEntry.LogID = uuid.New().String()
+	err := svc.repo.CreateLog(logEntry)
+	if err != nil {
+		var logEntry domain.LogMessage
+		logEntry.Message = err.Error()
+		logEntry.LogLevel = "Error"
+		logEntry.Service = "Logger"
+		svc.repo.CreateLog(logEntry)
 	}
-	svc.repo.CreateLog(message)
 }
 
 func (svc *loggingManagementService) GetLogs() *[]domain.LogMessage {
-	return svc.repo.GetLogs()
+	logs, err := svc.repo.GetLogs()
+	if err != nil {
+		var logEntry domain.LogMessage
+		logEntry.Message = err.Error()
+		logEntry.LogLevel = "Error"
+		logEntry.Service = "Logger"
+		svc.repo.CreateLog(logEntry)
+	}
+	return logs
+}
+
+func (svc *loggingManagementService) GetServiceLogs(service string) *[]domain.LogMessage {
+	logs, err := svc.repo.GetServiceLogs(service)
+	if err != nil {
+		var logEntry domain.LogMessage
+		logEntry.Message = err.Error()
+		logEntry.LogLevel = "Error"
+		logEntry.Service = "Logger"
+		svc.repo.CreateLog(logEntry)
+	}
+	return logs
+}
+
+func (svc *loggingManagementService) GetServiceLogsByLogLevel(service, log_level string) *[]domain.LogMessage {
+	logs, err := svc.repo.GetServiceLogsByLogLevel(service, log_level)
+	if err != nil {
+		var logEntry domain.LogMessage
+		logEntry.Message = err.Error()
+		logEntry.LogLevel = "Error"
+		logEntry.Service = "Logger"
+		svc.repo.CreateLog(logEntry)
+	}
+	return logs
 }
