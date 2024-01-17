@@ -17,11 +17,15 @@ func NewLoggingManagementService(repo ports.LoggerRepository) *loggingManagement
 	return &svc
 }
 
-func (svc *loggingManagementService) Log(messageString string, service string) {
+func (svc *loggingManagementService) CreateLog(messageString string, service string) {
 	message := domain.LogMessage{
 		Message: messageString,
 		Log_id:  uuid.New().String(),
 		Service: service,
 	}
-	svc.repo.Log(message)
+	svc.repo.CreateLog(message)
+}
+
+func (svc *loggingManagementService) GetLogs() *[]domain.LogMessage {
+	return svc.repo.GetLogs()
 }

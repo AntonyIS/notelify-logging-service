@@ -42,7 +42,7 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 	queryString := fmt.Sprintf(`
 		CREATE TABLE IF NOT EXISTS %s (
 			log_id VARCHAR(255) PRIMARY KEY UNIQUE,
-			service VARCHAR(255) NOT NULL
+			service VARCHAR(255) NOT NULL,
 			message VARCHAR(255) NOT NULL
 	)
 	`, tablename)
@@ -61,7 +61,7 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 	return &postgresDBClient{db: db, tablename: tablename}, nil
 }
 
-func (psql *postgresDBClient) Log(message domain.LogMessage) {
+func (psql *postgresDBClient) CreateLog(message domain.LogMessage) {
 	query := fmt.Sprintf(`
 		INSERT INTO %s (
 			log_id,
@@ -81,4 +81,33 @@ func (psql *postgresDBClient) Log(message domain.LogMessage) {
 			log.Println(err.Error())
 		}
 	}
+}
+
+func (psql *postgresDBClient) GetLogs() *[]domain.LogMessage {
+	fmt.Println(psql.tablename, "TANE")
+	return &[]domain.LogMessage{}
+	// query := fmt.Sprintf(`SELECT log_id, message, service FROM %s `, psql.tablename)
+
+	// logs := []domain.LogMessage{}
+	// rows, err := psql.db.Query(query)
+	// if err != nil {
+	// 	log.Println(err.Error())
+	// }
+	// defer rows.Close()
+
+	// for rows.Next() {
+	// 	var logMessage domain.LogMessage
+	// 	err := rows.Scan(
+	// 		logMessage.Log_id,
+	// 		logMessage.Message,
+	// 		logMessage.Service,
+	// 	)
+	// 	if err != nil {
+	// 		log.Println(err.Error())
+
+	// 	}
+	// 	logs = append(logs, logMessage)
+	// }
+
+	// return &logs
 }

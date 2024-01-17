@@ -12,7 +12,7 @@ import (
 
 type ginHandler interface {
 	PostLog(ctx *gin.Context)
-	GetLog(ctx *gin.Context)
+	GetLogs(ctx *gin.Context)
 }
 
 type handler struct {
@@ -36,12 +36,15 @@ func (h handler) PostLog(ctx *gin.Context) {
 		return
 	}
 
-	h.svc.Log(res, service)
+	h.svc.CreateLog(res, service)
 	ctx.JSON(http.StatusCreated, gin.H{"message": "message posted successfuly"})
 }
 
-func (h handler) GetLog(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "Logging service"})
+func (h handler) GetLogs(ctx *gin.Context) {
+	response := h.svc.GetLogs()
+
+	ctx.JSON(http.StatusOK, response)
+
 }
 
 func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
@@ -60,7 +63,7 @@ func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
 	logRoutes := router.Group("/v1/logger")
 	{
 		logRoutes.POST("/:service", logHandler.PostLog)
-		logRoutes.GET("/", logHandler.GetLog)
+		logRoutes.GET("/", logHandler.GetLogs)
 	}
 	router.Run(fmt.Sprintf(":%s", conf.SERVER_PORT))
 }

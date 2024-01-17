@@ -3,9 +3,11 @@ package ports
 import "github.com/AntonyIS/notelify-logging-svc/internal/core/domain"
 
 type LoggerService interface {
-	Log(message, service string)
+	CreateLog(message, service string)
+	GetLogs() *[]domain.LogMessage
 }
 
 type LoggerRepository interface {
-	Log(message domain.LogMessage)
+	CreateLog(message domain.LogMessage)
+	GetLogs() *[]domain.LogMessage
 }
