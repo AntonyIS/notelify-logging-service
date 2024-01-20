@@ -16,7 +16,10 @@ func RunService() {
 		panic(err)
 	}
 	repo, err := postgres.NewPostgresClient(*conf)
-	fmt.Println(err)
+	if err != nil {
+		panic(err)
+	}
 	loggerSvc := services.NewLoggingManagementService(repo)
+	fmt.Println(conf, loggerSvc.GetLogs())
 	http.InitGinRoutes(loggerSvc, *conf)
 }

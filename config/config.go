@@ -43,7 +43,7 @@ func NewConfig() (*Config, error) {
 		POSTGRES_DB       = "postgres"
 		POSTGRES_HOST     = "postgres"
 		POSTGRES_PORT     = "5432"
-		SERVER_PORT       = "8003"
+		SERVER_PORT       = "8002"
 		LOGGING_TABLE     = "Logs"
 		DEBUG             = false
 		TEST              = false
