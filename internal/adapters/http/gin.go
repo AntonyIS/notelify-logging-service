@@ -38,7 +38,7 @@ func (h handler) PostLog(ctx *gin.Context) {
 		return
 	}
 
-	h.svc.CreateLog(logEntry)
+	go h.svc.CreateLog(logEntry)
 	ctx.JSON(http.StatusCreated, gin.H{"message": "message posted successfuly"})
 }
 
