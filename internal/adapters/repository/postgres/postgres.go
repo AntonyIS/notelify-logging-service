@@ -55,9 +55,7 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 }
 
 func (psql *postgresDBClient) CreateLog(logEntry domain.LogMessage) error {
-
 	query := fmt.Sprintf(`INSERT INTO %s (log_id,log_level,message,service) VALUES ($1,$2,$3,$4)`, psql.tablename)
-
 	_, err := psql.db.Exec(
 		query,
 		logEntry.LogID,
@@ -74,7 +72,6 @@ func (psql *postgresDBClient) CreateLog(logEntry domain.LogMessage) error {
 
 func (psql *postgresDBClient) GetLogs() (*[]domain.LogMessage, error) {
 	query := fmt.Sprintf(`SELECT log_id, log_level,message, service FROM %s `, psql.tablename)
-
 	rows, err := psql.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -112,11 +109,8 @@ func (psql *postgresDBClient) GetServiceLogs(service string) (*[]domain.LogMessa
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
-
 	logs := []domain.LogMessage{}
-
 	for rows.Next() {
 		var logEntry domain.LogMessage
 		err := rows.Scan(
@@ -131,7 +125,6 @@ func (psql *postgresDBClient) GetServiceLogs(service string) (*[]domain.LogMessa
 		}
 		logs = append(logs, logEntry)
 	}
-
 	return &logs, nil
 
 }
@@ -150,11 +143,8 @@ func (psql *postgresDBClient) GetServiceLogsByLogLevel(service, log_level string
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
-
 	logs := []domain.LogMessage{}
-
 	for rows.Next() {
 		var logEntry domain.LogMessage
 		err := rows.Scan(
@@ -169,7 +159,5 @@ func (psql *postgresDBClient) GetServiceLogsByLogLevel(service, log_level string
 		}
 		logs = append(logs, logEntry)
 	}
-
 	return &logs, nil
-
 }

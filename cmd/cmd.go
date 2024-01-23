@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/AntonyIS/notelify-logging-service/config"
 	"github.com/AntonyIS/notelify-logging-service/internal/adapters/http"
 	"github.com/AntonyIS/notelify-logging-service/internal/adapters/repository/postgres"
@@ -20,6 +18,6 @@ func RunService() {
 		panic(err)
 	}
 	loggerSvc := services.NewLoggingManagementService(repo)
-	fmt.Println(conf, loggerSvc.GetLogs())
+
 	http.InitGinRoutes(loggerSvc, *conf)
 }

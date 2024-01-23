@@ -37,7 +37,6 @@ func (h handler) PostLog(ctx *gin.Context) {
 		})
 		return
 	}
-
 	go h.svc.CreateLog(logEntry)
 	ctx.JSON(http.StatusCreated, gin.H{"message": "message posted successfuly"})
 }
@@ -51,14 +50,12 @@ func (h handler) GetServiceLogs(ctx *gin.Context) {
 	service := ctx.Param("service")
 	response := h.svc.GetServiceLogs(service)
 	ctx.JSON(http.StatusOK, response)
-
 }
 
 func (h handler) GetServiceLogsByLogLevel(ctx *gin.Context) {
 	service := ctx.Param("service")
 	log_level := ctx.Param("log_level")
 	response := h.svc.GetServiceLogsByLogLevel(service, log_level)
-
 	ctx.JSON(http.StatusOK, response)
 
 }

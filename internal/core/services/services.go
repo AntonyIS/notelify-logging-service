@@ -30,7 +30,6 @@ func (svc *loggingManagementService) CreateLog(logEntry domain.LogMessage) {
 }
 
 func (svc *loggingManagementService) GetLogs() *[]domain.LogMessage {
-	
 	logs, err := svc.repo.GetLogs()
 	if err != nil {
 		var logEntry domain.LogMessage
