@@ -22,18 +22,17 @@ type Config struct {
 
 func NewConfig() (*Config, error) {
 	ENV := os.Getenv("ENV")
-
-	if ENV == "test" {
-		err := godotenv.Load("../../../.env")
-		if err != nil {
-			return nil, err
-		}
-	} else {
+	switch ENV {
+	case "development":
 		err := godotenv.Load(".env")
 		if err != nil {
 			return nil, err
 		}
-		ENV = os.Getenv("ENV")
+	case "development_test":
+		err := godotenv.Load("../../../.env")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var (
@@ -44,7 +43,7 @@ func NewConfig() (*Config, error) {
 		POSTGRES_HOST     = "postgres"
 		POSTGRES_PORT     = "5432"
 		SERVER_PORT       = "8002"
-		LOGGING_TABLE     = "Logs"
+		LOGGING_TABLE     = "Logging"
 		DEBUG             = false
 		TEST              = false
 	)
@@ -57,28 +56,31 @@ func NewConfig() (*Config, error) {
 	case "production_test":
 		TEST = true
 		DEBUG = true
-		LOGGING_TABLE = "TestLogs"
-
-	case "developement_test":
-		TEST = true
-		DEBUG = true
-		LOGGING_TABLE = "TestLogs"
+		LOGGING_TABLE = "ProductionTestLogging"
 
 	case "development":
 		TEST = true
 		DEBUG = true
 		POSTGRES_HOST = "localhost"
-		LOGGING_TABLE = "DevLogs"
+		LOGGING_TABLE = "DevLogging"
+
+	case "development_test":
+		TEST = true
+		DEBUG = true
+		SECRET_KEY = "testsecret"
+		POSTGRES_PASSWORD = "pass1234"
+		POSTGRES_HOST = "localhost"
+		LOGGING_TABLE = "TestLogging"
 
 	case "docker":
 		TEST = true
 		DEBUG = true
-		LOGGING_TABLE = "DockerLogs"
+		LOGGING_TABLE = "DockerLogging"
 
 	case "docker_test":
 		TEST = true
 		DEBUG = true
-		LOGGING_TABLE = "DockerLogs"
+		LOGGING_TABLE = "DockerLogging"
 	}
 
 	config := Config{
