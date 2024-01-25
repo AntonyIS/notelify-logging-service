@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"database/sql"
+	"log"
+	"time"
 
 	"fmt"
 
@@ -15,6 +17,8 @@ type postgresDBClient struct {
 	tablename string
 }
 
+var Count int
+
 func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 	dbname := appConfig.POSTGRES_DB
 	tablename := appConfig.LOGGING_TABLE
@@ -22,17 +26,15 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 	password := appConfig.POSTGRES_PASSWORD
 	port := appConfig.POSTGRES_PORT
 	host := appConfig.POSTGRES_HOST
+	Count = 0
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", host, port, user, dbname, password)
-
 	db, err := sql.Open("postgres", dsn)
-
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.Ping()
-
+	err = databaseAvailbility(db)
 	if err != nil {
 		return nil, err
 	}
@@ -160,4 +162,21 @@ func (psql *postgresDBClient) GetServiceLogsByLogLevel(service, log_level string
 		logs = append(logs, logEntry)
 	}
 	return &logs, nil
+}
+
+func databaseAvailbility(db *sql.DB) error {
+	fmt.Println("Attempting to connect to the database: ", Count)
+	err := db.Ping()
+	if err != nil {
+		if Count <= 3 {
+			time.Sleep(5 * time.Second)
+			Count += 1
+			databaseAvailbility(db)
+
+		} else {
+			log.Println("connection refused")
+			return err
+		}
+	}
+	return err
 }
