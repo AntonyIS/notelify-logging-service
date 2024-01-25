@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/AntonyIS/notelify-logging-service/config"
 	"github.com/AntonyIS/notelify-logging-service/internal/adapters/http"
 	"github.com/AntonyIS/notelify-logging-service/internal/adapters/repository/postgres"
@@ -15,7 +17,7 @@ func RunService() {
 	}
 	repo, err := postgres.NewPostgresClient(*conf)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	loggerSvc := services.NewLoggingManagementService(repo)
 
