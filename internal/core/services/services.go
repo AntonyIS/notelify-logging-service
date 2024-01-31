@@ -19,6 +19,7 @@ func NewLoggingManagementService(repo ports.LoggerRepository) *loggingManagement
 
 func (svc *loggingManagementService) CreateLog(logEntry domain.LogMessage) {
 	logEntry.LogID = uuid.New().String()
+
 	err := svc.repo.CreateLog(logEntry)
 	if err != nil {
 		var logEntry domain.LogMessage

@@ -31,12 +31,14 @@ func NewGinHandler(svc ports.LoggerService) ginHandler {
 
 func (h handler) PostLog(ctx *gin.Context) {
 	var logEntry domain.LogMessage
+
 	if err := ctx.ShouldBindJSON(&logEntry); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
+	logEntry.Service = ctx.Param("service")
 	go h.svc.CreateLog(logEntry)
 	ctx.JSON(http.StatusCreated, gin.H{"message": "message posted successfuly"})
 }
@@ -75,7 +77,7 @@ func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
 	logHandler := NewGinHandler(svc)
 	logRoutes := router.Group("/v1/logger")
 	{
-		logRoutes.POST("/", logHandler.PostLog)
+		logRoutes.POST("/:service", logHandler.PostLog)
 		logRoutes.GET("/", logHandler.GetLogs)
 		logRoutes.GET("/:service", logHandler.GetServiceLogs)
 		logRoutes.GET("/:service/:log_level", logHandler.GetServiceLogsByLogLevel)
