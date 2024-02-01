@@ -73,9 +73,9 @@ func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
 	}))
 
 	logHandler := NewGinHandler(svc)
-	logRoutes := router.Group("/v1/logger")
+	logRoutes := router.Group("/logger/v1")
 	{
-		logRoutes.POST("/", logHandler.PostLog)
+		logRoutes.POST("/:service", logHandler.PostLog)
 		logRoutes.GET("/", logHandler.GetLogs)
 		logRoutes.GET("/:service", logHandler.GetServiceLogs)
 		logRoutes.GET("/:service/:log_level", logHandler.GetServiceLogsByLogLevel)
