@@ -8,7 +8,6 @@ import (
 )
 
 func RunService() {
-	// Read application environment and load configurations
 	conf, err := config.NewConfig()
 	if err != nil {
 		panic(err)

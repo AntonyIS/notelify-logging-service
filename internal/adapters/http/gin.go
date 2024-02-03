@@ -16,6 +16,7 @@ type ginHandler interface {
 	GetLogs(ctx *gin.Context)
 	GetServiceLogs(ctx *gin.Context)
 	GetServiceLogsByLogLevel(ctx *gin.Context)
+	HealthCheck(ctx *gin.Context)
 }
 
 type handler struct {
@@ -35,7 +36,6 @@ func (h handler) PostLog(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-		return
 	}
 	go h.svc.CreateLog(logEntry)
 	ctx.JSON(http.StatusCreated, gin.H{"message": "message posted successfuly"})
@@ -60,6 +60,10 @@ func (h handler) GetServiceLogsByLogLevel(ctx *gin.Context) {
 
 }
 
+func (h handler) HealthCheck(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"message": "Server running", "status": "success"})
+}
+
 func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
 	gin.SetMode(gin.DebugMode)
 
@@ -75,10 +79,12 @@ func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
 	logHandler := NewGinHandler(svc)
 	logRoutes := router.Group("/logger/v1")
 	{
-		logRoutes.POST("/:service", logHandler.PostLog)
+		
 		logRoutes.GET("/", logHandler.GetLogs)
+		logRoutes.GET("/healthcheck", logHandler.HealthCheck)
 		logRoutes.GET("/:service", logHandler.GetServiceLogs)
 		logRoutes.GET("/:service/:log_level", logHandler.GetServiceLogsByLogLevel)
+		logRoutes.POST("/:service", logHandler.PostLog)
 	}
 	router.Run(fmt.Sprintf(":%s", conf.SERVER_PORT))
 }
