@@ -1,13 +1,10 @@
-package http
+package app
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/AntonyIS/notelify-logging-service/config"
 	"github.com/AntonyIS/notelify-logging-service/internal/core/domain"
 	"github.com/AntonyIS/notelify-logging-service/internal/core/ports"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +13,7 @@ type ginHandler interface {
 	GetLogs(ctx *gin.Context)
 	GetServiceLogs(ctx *gin.Context)
 	GetServiceLogsByLogLevel(ctx *gin.Context)
+	HealthCheck(ctx *gin.Context)
 }
 
 type handler struct {
@@ -36,7 +34,6 @@ func (h handler) PostLog(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-		return
 	}
 	logEntry.Service = ctx.Param("service")
 	go h.svc.CreateLog(logEntry)
@@ -46,8 +43,8 @@ func (h handler) PostLog(ctx *gin.Context) {
 func (h handler) GetLogs(ctx *gin.Context) {
 	response := h.svc.GetLogs()
 	ctx.JSON(http.StatusOK, response)
-
 }
+
 func (h handler) GetServiceLogs(ctx *gin.Context) {
 	service := ctx.Param("service")
 	response := h.svc.GetServiceLogs(service)
@@ -59,28 +56,8 @@ func (h handler) GetServiceLogsByLogLevel(ctx *gin.Context) {
 	log_level := ctx.Param("log_level")
 	response := h.svc.GetServiceLogsByLogLevel(service, log_level)
 	ctx.JSON(http.StatusOK, response)
-
 }
 
-func InitGinRoutes(svc ports.LoggerService, conf config.Config) {
-	gin.SetMode(gin.DebugMode)
-
-	router := gin.Default()
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-	}))
-
-	logHandler := NewGinHandler(svc)
-	logRoutes := router.Group("/v1/logger")
-	{
-		logRoutes.POST("/:service", logHandler.PostLog)
-		logRoutes.GET("/", logHandler.GetLogs)
-		logRoutes.GET("/:service", logHandler.GetServiceLogs)
-		logRoutes.GET("/:service/:log_level", logHandler.GetServiceLogsByLogLevel)
-	}
-	router.Run(fmt.Sprintf(":%s", conf.SERVER_PORT))
+func (h handler) HealthCheck(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"message": "Server running", "status": "success"})
 }

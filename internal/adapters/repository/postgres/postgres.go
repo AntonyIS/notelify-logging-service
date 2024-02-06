@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	"fmt"
@@ -29,12 +28,16 @@ func NewPostgresClient(appConfig appConfig.Config) (*postgresDBClient, error) {
 	Count = 0
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", host, port, user, dbname, password)
-	db, err := sql.Open("postgres", dsn)
+
+	connectionAttemps := 1
+	db, err := dbConnectionAttempts(dsn, connectionAttemps)
+
 	if err != nil {
 		return nil, err
 	}
 
-	err = databaseAvailbility(db)
+	err = dbPingAttempts(db, connectionAttemps)
+
 	if err != nil {
 		return nil, err
 	}
@@ -164,19 +167,34 @@ func (psql *postgresDBClient) GetServiceLogsByLogLevel(service, log_level string
 	return &logs, nil
 }
 
-func databaseAvailbility(db *sql.DB) error {
-	fmt.Println("Attempting to connect to the database: ", Count)
+func dbConnectionAttempts(dsn string, connectionAttemps int) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		if connectionAttemps <= 3 {
+			fmt.Println("Sleeping for 5 seconds on count ", connectionAttemps)
+			time.Sleep(5 * time.Second)
+			connectionAttemps += 1
+			dbConnectionAttempts(dsn, connectionAttemps)
+		} else {
+			return nil, err
+		}
+	}
+
+	return db, nil
+}
+
+func dbPingAttempts(db *sql.DB, connectionAttemps int) error {
 	err := db.Ping()
 	if err != nil {
-		if Count <= 3 {
+		if connectionAttemps <= 3 {
+			fmt.Println("DB Ping attept :", connectionAttemps)
 			time.Sleep(5 * time.Second)
-			Count += 1
-			databaseAvailbility(db)
-
+			connectionAttemps += 1
+			dbPingAttempts(db, connectionAttemps)
 		} else {
-			log.Println("connection refused")
 			return err
 		}
 	}
-	return err
+
+	return nil
 }

@@ -4,13 +4,12 @@ import (
 	"log"
 
 	"github.com/AntonyIS/notelify-logging-service/config"
-	"github.com/AntonyIS/notelify-logging-service/internal/adapters/http"
+	"github.com/AntonyIS/notelify-logging-service/internal/adapters/app"
 	"github.com/AntonyIS/notelify-logging-service/internal/adapters/repository/postgres"
 	"github.com/AntonyIS/notelify-logging-service/internal/core/services"
 )
 
 func RunService() {
-	// Read application environment and load configurations
 	conf, err := config.NewConfig()
 	if err != nil {
 		panic(err)
@@ -21,5 +20,5 @@ func RunService() {
 	}
 	loggerSvc := services.NewLoggingManagementService(repo)
 
-	http.InitGinRoutes(loggerSvc, *conf)
+	app.InitGinRoutes(loggerSvc, *conf)
 }
